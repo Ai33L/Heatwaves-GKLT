@@ -1,3 +1,4 @@
+import cProfile
 import warnings
 warnings.filterwarnings("ignore")
 # import os
@@ -5,7 +6,7 @@ warnings.filterwarnings("ignore")
 
 import climt
 from sympl import (
-    PlotFunctionMonitor, NetCDFMonitor,
+    PlotFunctionMonitor,
     TimeDifferencingWrapper, get_constant
 )
 import numpy as np
@@ -13,6 +14,7 @@ from datetime import timedelta
 import pickle
 import time
 import matplotlib.pyplot as plt
+from climt import bolton_q_sat
 import mgzip
 
 def load_state(state, core, filename):
@@ -21,7 +23,7 @@ def load_state(state, core, filename):
         fields, spec = pickle.load(f)
     
     core._gfs_cython.reinit_spectral_arrays(spec)
-    # core.set_flag(False)
+    core.set_flag(False)
     
     state.update(fields)
 
@@ -37,7 +39,6 @@ def plot_function(fig, state):
             state['upwelling_longwave_flux_in_air'][-1])
     
     flux=(net_heat_flux*np.cos(state['latitude'].values[:])).mean()
-    print(-flux.item())
 
     ax = fig.add_subplot(4, 2, 1)
     state['surface_temperature'].plot.contourf(
@@ -82,64 +83,11 @@ def plot_function(fig, state):
     fig.tight_layout()
 
 import os
-os.chdir('/home/lab_abel/Thesis_rem')
+os.chdir('/home/lab_abel/Thesis/GKTL/Data/spinup')
 
-monitor = PlotFunctionMonitor(plot_function)
+monitor = PlotFunctionMonitor(plot_function, interactive=False)
 
-climt.set_constants_from_dict({
-    'stellar_irradiance': {'value': 200, 'units': 'W m^-2'}})
+with mgzip.open('spinup_2year', 'rb') as f:
+    my_state= pickle.load(f)[0]
 
-model_time_step = timedelta(minutes=20)
-
-# Create components
-convection = climt.EmanuelConvection()
-boundary=TimeDifferencingWrapper(climt.SimpleBoundaryLayer(scaling_land=0.5))
-radiation = climt.GrayLongwaveRadiation()
-slab_surface = climt.SlabSurface()
-
-dycore = climt.GFSDynamicalCore(
-    [boundary,radiation, slab_surface,
-    convection], number_of_damped_levels=5
-)
-
-grid = climt.get_grid(nx=128, ny=62)
-# grid = climt.get_grid(nx=12, ny=16)
-
-# Create model state
-my_state = climt.get_default_state([dycore], grid_state=grid)
-dycore(my_state, model_time_step)
-
-# load_state(my_state, dycore, '../Thesis/GKTL/Data/spinup/spinup_2year')
- 
-# st = time.time()
-for i in range(100):#26280 one year
-    
-    if i==1:
-        dycore.set_flag(True)
-
-    diag, my_state = dycore(my_state, model_time_step)
-    my_state.update(diag)
-    my_state['time'] += model_time_step
-
-# et = time.time()
-
-# elapsed_time = et - st
-# print('Execution time:', elapsed_time, 'seconds')
-spec = dycore._gfs_cython.get_spectral_arrays()
-with mgzip.open('restore', 'wb') as f:
-    pickle.dump([my_state,spec], f)
-
-# load_state(my_state, dycore, 'restore')
-
-for i in range(1):#26280 one year
-    
-    if i==1:
-        dycore.set_flag(True)
-
-    diag, my_state = dycore(my_state, model_time_step)
-    my_state.update(diag)
-    my_state['time'] += model_time_step
-
-spec = dycore._gfs_cython.get_spectral_arrays()
-with mgzip.open('state1', 'wb') as f:
-    pickle.dump([my_state,spec], f)
+monitor.store(my_state)
