@@ -1,0 +1,96 @@
+from turtle import onscreenclick
+import mgzip
+import pickle
+import matplotlib.pyplot as plt
+import numpy as np
+from statsmodels.graphics import tsaplots
+
+import os
+os.chdir('/home/lab_abel/Thesis/GKTL/Data/long_run_temp')
+
+def running_mean(x, N):
+    cumsum = np.cumsum(np.insert(x, 0, 0)) 
+    return (cumsum[N:] - cumsum[:-N]) / float(N)    
+
+with mgzip.open('anomaly_A20_50', 'rb') as f:
+        A = pickle.load(f)
+
+A_mean=running_mean(A,4*90)
+
+plt.plot(A_mean)
+plt.show()
+
+a_list=np.linspace(0.1,1.8,100)
+return_list=[]
+for a_th in a_list:
+    t_prev=0
+    cross=[]
+    for i in range(len(A_mean)):
+        if A_mean[i]>a_th and (i-t_prev)>40:
+            cross.append(i/4)
+            t_prev=i
+
+    cross=np.array(cross)
+    diff=(cross[1:]-cross[:-1])/365
+    return_list.append(np.sum(diff*diff)/(2*99.753))
+
+print(return_list)
+
+plt.plot((return_list),a_list, label='normal')
+# plt.show()
+
+A_max=[]
+
+T_block=100
+M=int(len(A_mean)/(4*T_block))
+print(M)
+for i in range(M):
+    A_max.append((A_mean[i*4*T_block:i*4*T_block+4*T_block]).max())
+
+# # plt.plot(A_max)
+# # plt.show()
+
+A_max=np.sort(A_max)
+A_hot=A_max[A_max>0.1]
+# plt.plot(A_hot)
+# plt.show()
+
+# plt.plot(A_max)
+# plt.show()
+m=len(A_hot)
+
+Ret=[]
+prob=[]
+for i in range(m):
+    t=-T_block/(np.log((1-(m-i)/M)))
+    Ret.append(t/365)
+    prob.append(1-np.exp(-T_block/t))
+
+# plt.scatter(A_hot[:],prob,label='100 year long run',s=0.8)
+# plt.xlabel('Anomaly of 90 day avg temperature')
+# plt.ylabel('q(a)')
+# plt.grid()
+# plt.legend()
+# plt.show()
+
+# with mgzip.open('../GKTL/PDF_ctrl', 'wb') as f:
+#     pickle.dump([A_hot[:],prob],f)
+
+# for e in A_hot:
+#     print(e)
+plt.plot((Ret),A_hot[:],label='block maximum')
+plt.xlabel('Return time in yrs')
+plt.ylabel('Anomaly of 90 day avg temperature')
+plt.grid()
+plt.xscale('log')
+plt.legend()
+
+# with mgzip.open('../GKTL/return_plot_ctrl', 'wb') as f:
+#     pickle.dump([Ret,A_hot[:]],f)
+
+# # with mgzip.open('../GKTL/return_plot', 'rb') as f:
+# #     T,A = pickle.load(f)
+
+# # plt.plot(T,A)
+
+plt.show()

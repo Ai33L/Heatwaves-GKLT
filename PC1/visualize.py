@@ -51,7 +51,7 @@ def plot_function(fig, state):
     ax.set_title('Zonal Wind')
 
     ax = fig.add_subplot(4, 2, 2)
-    state['boundary_layer_height'].plot.contourf(
+    (state['area_type'].astype(str)=='land').plot.contourf(
         ax=ax, levels=16, robust=True)
     ax.set_title(flux.item())
 
@@ -83,11 +83,11 @@ def plot_function(fig, state):
     fig.tight_layout()
 
 import os
-os.chdir('/home/lab_abel/Thesis/GKTL/Data/spinup')
+os.chdir('/home/lab_abel/Heatwaves-GKTL/PC1')
 
 monitor = PlotFunctionMonitor(plot_function, interactive=False)
 
-with mgzip.open('spinup_2year', 'rb') as f:
-    my_state= pickle.load(f)[0]
+with mgzip.open('Data/clim_test', 'rb') as f:
+    my_state= pickle.load(f)
 
 monitor.store(my_state)
