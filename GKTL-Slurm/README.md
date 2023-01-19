@@ -10,7 +10,9 @@ The algorithm is run with the script **run.sh**, which automates the entire algo
   
 The experiments to be run are defined at the end of the file.
 
-#### Scripts and setup
+***
+
+### Scripts and setup
 
 * *Initialising the experiment*
 	+ Each experiment is setup with the *GKTL_init.py* script using the *submit_init.sh* job script.
@@ -24,4 +26,8 @@ The experiments to be run are defined at the end of the file.
 	+ This script runs in parallel, with multiple trajectory simulations running at once.
 	+ Each instance of the model runs a trajectory from an initial condition and stores relevant data. The final states of each simulation are stored as *traj_new\<>* files.
 	+ The data generated from the trajectories are written in files with name format *data*_\<*iteration>*_*\<traj_num>*. The data files for each trajectory in the algorithm are tracked in the *link* file.
+
+* *Trajectory resampling*
+	+ The trajectory resampling is performed with the *GKTL_resampling.py* script using the *submit_resample.sh* job script.
+
  
