@@ -6,10 +6,11 @@
 # 2 - Value of selection coefficient to be used
 # 3 - Number of trajectories to be run
 # 4 - Directory of initial states
-# 5 - Starting iteration for an experiment (optional - restart from crash) 
+# 5 - Starting iteration for an experiment (optional - to restart from crash) 
+
 run_exp(){
 
-# check restart argument and set it to 1 if not passed
+# check restart argument and default to 1 if not passed
 iter=${5:-1}
 
 # clear slurm logs
@@ -43,7 +44,7 @@ rm -r $1/pass_traj*
 
 fi
 
-# proceed only if pass_init file is found in direcotry
+# proceed only if pass_init file is found in directory
 x=`find $1 -name 'pass_init' |wc -l`
 while [ $x -ne 1 ]
 do
@@ -107,7 +108,7 @@ x_prev=$x
 sleep 120
 done
 
-# wait till al trajectory runs are completed
+# wait till all trajectory runs have completed
 x=`find $1 -name 'pass_traj*' |wc -l`
 while [ $x -ne $3 ]
 do
@@ -138,6 +139,9 @@ rm -r *.sh.e*
 
 done
 
+
+# perform final computations and cleanup with GKTL_wrap
+
 pass=0
 while [ $pass -ne 1 ]
 do
@@ -161,24 +165,10 @@ rm GKTL_log.txt
 
 }
 
+
+
 # Experiment list with details
 
-#echo 'K_10_1'
-#echo '---'
-#run_exp 'K_10_1' 10 512 'initial_summer_0.5_6'
-
-#echo 'K_20_1'
-#echo '---'
-#run_exp 'K_20_1' 20 512 'initial_summer_0.5_6'
-
-#echo 'K_40_1'
-#echo '---'
-#run_exp 'K_40_1' 40 512 'initial_summer_0.5_6'
-
-#echo 'K_50_1'
-#echo '---'
-#run_exp 'K_50_1' 50 512 'initial_summer_0.5_6'
-
-echo 'K'
+echo 'K_10_1'
 echo '---'
-run_exp 'K' 0 512 'initial_summer_0.5_6'
+run_exp 'K_10_1' 10 512 'initial_summer_0.5_6'

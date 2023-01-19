@@ -19,6 +19,12 @@ dir=str(sys.argv[3])
 with open(dir+'/pert_flag', 'rb') as f:
     pert_flag = int(pickle.load(f)[traj_num-1])
 
+# get tau value
+with open(dir+'/config', 'rb') as f:
+    config = pickle.load(f)
+
+tau=config[2]
+
 
 # Function to perturb spectral surface pressure array - To introduce perturbation in model
 def perturb(X):
@@ -110,7 +116,7 @@ def Traj():
 
     A=[] # to store observable
 
-    for i in range(72*8):#26280 one year
+    for i in range(72*tau):#26280 one year
 
         diag, my_state = dycore(my_state, model_time_step)
         my_state.update(diag)
