@@ -1,17 +1,30 @@
 #!/bin/bash
 
+# Function to run an experiment
+# Arguments-
+# 1 - Directory to run experiment in
+# 2 - Value of selection coefficient to be used
+# 3 - Number of trajectories to be run
+# 4 - Directory of initial states
+# 5 - Starting iteration for an experiment (optional - restart from crash) 
 run_exp(){
 
-# remove old slurm files
+# check restart argument and set it to 1 if not passed
+iter=${5:-1}
+
+# clear slurm logs
 rm -r *.sh.o*
 rm -r *.sh.e*
 rm GKTL_log.txt
 
-# make a new directory for experiment
+# run GKTL_init for new experiments 
+if [ $iter -eq 1 ]
+then
+# create directory for experiment
 rm -r $1
 mkdir $1
 
-# GKTL run init and check for log
+# run GKTL_init
 pass=0
 while [ $pass -ne 1 ]
 do
@@ -21,6 +34,7 @@ else
 sleep 1
 fi
 done
+fi
 
 x=`find $1 -name 'link' |wc -l`
 while [ $x -ne 1 ]
