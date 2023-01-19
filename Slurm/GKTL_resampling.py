@@ -22,6 +22,7 @@ tau=config[2]
 # cleanup previous states
 for e in range(Num_traj):
     os.remove(dir+'/traj'+str(e+1))
+    os.remove(dir+'/pass_traj'+str(e+1))
 
 # calculate the weights
 W=np.zeros(Num_traj)

@@ -177,9 +177,9 @@ rm GKTL_log.txt
 #echo '---'
 #run_exp 'K_50_1' 50 512 'initial_summer_0.5_6'
 
-echo 'K_0_1'
+echo 'K'
 echo '---'
-run_exp 'K_0_1' 0 512 'initial_summer_0.5_6'
+run_exp 'K' 0 512 'initial_summer_0.5_6'
 
 # echo 'K_20_2'
 # echo '---'
