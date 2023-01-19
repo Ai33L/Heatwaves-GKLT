@@ -5,7 +5,7 @@
 The algorithm is run with the script **run_full.sh**, which automates the entire algorithm procedure.
 
 ```
- nohup ./run_full.sh &
+ nohup ./run.sh &
 ```
   
 Te experiment details can be modified at the end of this file.
@@ -14,3 +14,4 @@ Te experiment details can be modified at the end of this file.
 
 * Initialising the experiment
 
+The 
