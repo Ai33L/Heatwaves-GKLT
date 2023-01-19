@@ -1,20 +1,17 @@
 import warnings
 warnings.filterwarnings("ignore")
-# import os
-# os.environ['OPENMP_NUM_THREADS']='2'
 
 import climt
 from sympl import (
-    PlotFunctionMonitor, NetCDFMonitor,
-    TimeDifferencingWrapper, get_constant
+    TimeDifferencingWrapper
 )
 import numpy as np
 from datetime import timedelta
 import pickle
-import time
-import matplotlib.pyplot as plt
 import gzip
 
+
+# get passed arguments
 import sys
 traj_num=int(sys.argv[1])
 iter=int(sys.argv[2])
@@ -22,13 +19,15 @@ dir=str(sys.argv[3])
 with open(dir+'/pert_flag', 'rb') as f:
     pert_flag = int(pickle.load(f)[traj_num-1])
 
+
 # Function to perturb spectral surface pressure array - To introduce perturbation in model
 def perturb(X):
     X=np.array(X)
     N=np.random.uniform(-1,1,np.shape(X[4]))*np.sqrt(2)*10**-4
     X[4][:]=(X[4]+N)[:]
 
-#load state from memory
+
+#load state from memory - perturb if pert_flag is true
 def load_state(state, core, filename):
         
     with open(filename, 'rb') as f:
@@ -40,6 +39,7 @@ def load_state(state, core, filename):
     core._gfs_cython.reinit_spectral_arrays(spec)    
     state.update(fields)
 
+# function to save state
 def save_state(state, core, filename):
     
     spec = core._gfs_cython.get_spectral_arrays()
@@ -47,6 +47,8 @@ def save_state(state, core, filename):
     with open(filename, 'wb') as f:
         pickle.dump([state,spec], f)
 
+
+# trajectory simulation
 def Traj():
 
     # Optional in our model - no component that uses irradiance
@@ -55,12 +57,10 @@ def Traj():
 
     model_time_step = timedelta(minutes=20)
 
-    # Create components
     convection = climt.EmanuelConvection()
     boundary=TimeDifferencingWrapper(climt.SimpleBoundaryLayer(scaling_land=0.5))
     radiation = climt.GrayLongwaveRadiation()
     slab_surface = climt.SlabSurface()
-    optical_depth = climt.Frierson06LongwaveOpticalDepth(linear_optical_depth_parameter=1, longwave_optical_depth_at_equator=6)
 
     dycore = climt.GFSDynamicalCore(
         [boundary ,radiation, convection, slab_surface], number_of_damped_levels=5
@@ -68,23 +68,25 @@ def Traj():
 
     grid = climt.get_grid(nx=128, ny=62)
 
-    # Create model state
     my_state = climt.get_default_state([dycore], grid_state=grid)
     dycore(my_state, model_time_step)
 
     load_state(my_state, dycore, dir+'/traj'+str(traj_num))
 
     # setup fields to save
+    
     # Temp field
     Air_temp_lowest=[]
-    # 2D fields
+    
+    # 2D fields    
     Surf_temp=[]
     Surf_press=[]
     Down_long=[]
     Up_long=[]
     Latent_flux=[]
     Sensible_flux=[]
-    # 3D fields
+    
+    # 3D fields    
     Air_temp=[]
     East_wind=[]
     North_wind=[]
@@ -100,13 +102,13 @@ def Traj():
 
     with gzip.open('mask', 'rb') as f:
             obs_mask = pickle.load(f)
-    
-    A=[]
 
     def Obs(state):
         lat = np.radians(my_state['latitude'].values[:])
         O=state['air_temperature'][0].values[:]
         return((O*np.cos(lat)*obs_mask).sum())/((np.cos(lat)*obs_mask).sum())
+
+    A=[] # to store observable
 
     for i in range(72*8):#26280 one year
 
@@ -135,6 +137,7 @@ def Traj():
             East_wind.append(np.around(my_state['eastward_wind'].values[:20],3))
             North_wind.append(np.around(my_state['northward_wind'].values[:20],3))
 
+        # write to file at end of trajectory simulation
         if (i+1)%(72*8)==0:
             
             with gzip.open(dir+'/A'+str(traj_num), 'wb') as f:
@@ -153,3 +156,7 @@ def Traj():
             save_state(my_state, dycore, dir+'/traj_new'+str(traj_num))
 
 Traj()
+
+# pass_traj indicates completion of the script
+with open(dir+'/pass_traj'+str(traj_num), 'wb') as f:
+    pickle.dump([], f)

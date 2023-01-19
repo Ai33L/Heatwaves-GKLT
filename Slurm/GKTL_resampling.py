@@ -3,10 +3,10 @@ import pickle
 import numpy as np
 import random
 import shutil
-
 import os
-# os.chdir('/home/lab_abel/Heatwaves-GKTL/PB/GKTL_PB/k_10_1')
 
+
+# get passed arguments
 import sys
 dir=str(sys.argv[1])
 iter=int(sys.argv[2])
@@ -18,12 +18,12 @@ k=config[0]/365
 Num_traj=config[1]
 tau=config[2]
 
-with open(dir+'/link', 'rb') as f:
-    link = pickle.load(f)
 
-for i in range(Num_traj):
-    link[i]=link[i]+[str(iter)+'_'+str(i+1)]
+# cleanup previous states
+for e in range(Num_traj):
+    os.remove(dir+'/traj'+str(e+1))
 
+# calculate the weights
 W=np.zeros(Num_traj)
 
 with open(dir+'/T', 'rb') as f:
@@ -37,16 +37,24 @@ for i in range(Num_traj):
 
 R_ext=W.sum()/Num_traj
 
+
+# update R_log 
 with open(dir+'/R_log', 'rb') as f:
     R = pickle.load(f)
 
 R=R+np.log(R_ext)
 
-with open(dir+'/R_log', 'wb') as f:
-    pickle.dump(R, f)
+
+# update links
+with open(dir+'/link', 'rb') as f:
+    link = pickle.load(f)
+
+for i in range(Num_traj):
+    link[i]=link[i]+[str(iter)+'_'+str(i+1)]
 
 W=W/R_ext
 
+# calculate number of clones from weights
 N=np.zeros(Num_traj)
 for i in range(Num_traj):
     N[i]=np.trunc(W[i]+np.random.uniform())
@@ -69,10 +77,7 @@ if diff<0:
                 N[ind]-=1
                 break
 
-for e in range(Num_traj):
-    os.remove(dir+'/traj'+str(e+1))
-
-print(N)
+# perform cloning
 pert_flag=np.ones(Num_traj)
 ind=1
 T_new=[]
@@ -89,6 +94,8 @@ for e in range(len(N)):
             pert_flag[ind-1]=0
         ind+=1
 
+
+# delete files associated with deleted trajectories
 for e in link_delete:
     flag=0
     for i in range(len(e)):
@@ -109,6 +116,12 @@ for e in link_delete:
                     os.remove(dir+'/data3D_'+e[i])
                 flag=1
 
+
+# update files
+
+with open(dir+'/R_log', 'wb') as f:
+    pickle.dump(R, f)
+
 with open(dir+'/link', 'wb') as f:
     pickle.dump(link_new, f)
 
@@ -121,6 +134,6 @@ with open(dir+'/pert_flag', 'wb') as f:
 for e in range(Num_traj):
     os.remove(dir+'/traj_new'+str(e+1))
 
-with open(dir+'/resample_log'+str(iter), 'wb') as f:
+# pass_resample indicates completion of the script
+with open(dir+'/pass_resample'+str(iter), 'wb') as f:
     pickle.dump([], f)
-

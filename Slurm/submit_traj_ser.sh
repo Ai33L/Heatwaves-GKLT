@@ -8,8 +8,6 @@
 ##SBATCH --array=1-40
 #SBATCH --qos=array-job
 
-sstat -j $SLURM_JOB_ID
-
 pass=0
 while [ $pass -ne 1 ]
 do
