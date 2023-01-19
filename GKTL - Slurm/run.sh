@@ -161,6 +161,8 @@ rm GKTL_log.txt
 
 }
 
+# Experiment list with details
+
 #echo 'K_10_1'
 #echo '---'
 #run_exp 'K_10_1' 10 512 'initial_summer_0.5_6'
