@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Function to run an experiment
-# Arguments-
+# Arguments -
 # 1 - Directory to run experiment in
 # 2 - Value of selection coefficient to be used
 # 3 - Number of trajectories to be run
@@ -21,6 +21,7 @@ rm GKTL_log.txt
 # run GKTL_init for new experiments 
 if [ $iter -eq 1 ]
 then
+
 echo "starting new experiment"
 # create directory for experiment
 rm -r $1
@@ -41,7 +42,6 @@ else
 
 echo "starting experiment from iteration $iter"
 rm -r $1/pass_traj*
-
 fi
 
 # proceed only if pass_init file is found in directory
@@ -138,7 +138,6 @@ rm -r *.sh.o*
 rm -r *.sh.e*
 
 done
-
 
 # perform final computations and cleanup with GKTL_wrap
 
