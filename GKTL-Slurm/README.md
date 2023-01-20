@@ -2,13 +2,19 @@
 
 #### Algorithm run
 
-The algorithm is run with the script **run.sh**, which automates the entire algorithm procedure.
+The algorithm is run with the script **run.sh**, which automates the entire algorithm procedure. The experiments to be run are defined at the end of the file.
 
 ```
  nohup ./run.sh &
 ```
   
-The experiments to be run are defined at the end of the file.
+#### Files and setup
+* GKTL_init.py and submit_init.sh
+* GKTL_traj.py and submit_traj_ser.sh
+* GKTL_resampling.py and submit_resample.sh
+* GKTL_wrap.py and submit_wrap.sh
+* An initial state pool directory with files named in format *state<>*
+* A *mask* file, which contains the mask array used for observable computation
 
 ***
 
@@ -39,6 +45,8 @@ The experiments to be run are defined at the end of the file.
 	+ This script only takes the target directory as input.
 	+ The script calculates the probability of each trajectory from the observable and the R_log value, and writes it to file.
 	+ Temporary files created during algorithm run are removed and the directory is cleaned up.
+
+***
 
 
  
