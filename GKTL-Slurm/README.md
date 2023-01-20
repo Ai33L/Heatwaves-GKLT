@@ -29,5 +29,16 @@ The experiments to be run are defined at the end of the file.
 
 * *Trajectory resampling*
 	+ The trajectory resampling is performed with the *GKTL_resampling.py* script using the *submit_resample.sh* job script.
+	+ The target directory and iteration number are passed as arguments to this script.
+	+ The script calculates weights for the trajectories obtained in simulation and modifies the R_log value.
+	+ Based on the calculated weights, the number of clones for each trajectory is determined. The cloning procedure is carried out, and the trajectories with no clones are killed off.
+	+ The data files of the killed trajectories are removed, and the other files are updated to reflect the cloning.
+
+* *End of experiment and calculations*
+	+ Each experiment is concluded by the *GKTL_wrap.py* script using the *submit_wrap.sh* job script.
+	+ This script only takes the target directory as input.
+	+ The script calculates the probability of each trajectory from the observable and the R_log value, and writes it to file.
+	+ Temporary files created during algorithm run are removed and the directory is cleaned up.
+
 
  
