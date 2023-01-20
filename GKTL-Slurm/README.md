@@ -31,7 +31,12 @@ The algorithm is run with the script **run.sh**, which automates the entire algo
 	+ The target directory, iteration number and the trajectory index are passed as input to the script, which simulates each trajectory from the correct initial condition.
 	+ This script runs in parallel, with multiple trajectory simulations running at once.
 	+ Each instance of the model runs a trajectory from an initial condition and stores relevant data. The final states of each simulation are stored as *traj_new\<>* files.
-	+ The data generated from the trajectories are written in files with name format *data*_\<*iteration>*_*\<traj_num>*. The data files for each trajectory in the algorithm are tracked in the *link* file.
+	+ The data generated from the trajectories are written in files with name format *data*_\<*iteration>*_*\<traj_num>*.
+		+ Trajectory observable is stored at 20 minute frequency
+		+ Lowest model level air temperature field is stored at 1 hour frequency
+		+ 2D surface fields are stores at 6 hour frequency
+		+ 3D fields like air temperature and wind are stored at 24 hour frequency 
+	* The data files for each trajectory in the algorithm are tracked in the *link* file.
 
 * *Trajectory resampling*
 	+ The trajectory resampling is performed with the *GKTL_resampling.py* script using the *submit_resample.sh* job script.
