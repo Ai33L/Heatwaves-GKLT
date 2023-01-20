@@ -118,6 +118,9 @@ def Traj():
 
     for i in range(72*tau):#26280 one year
 
+        if i==1:
+            dycore.set_flag(True)
+
         diag, my_state = dycore(my_state, model_time_step)
         my_state.update(diag)
         my_state['time'] += model_time_step
