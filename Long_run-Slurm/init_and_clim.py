@@ -1,25 +1,17 @@
-# Supercomputer script to perform spinup (3 years), run for another 30 years (1000 initial 
-# conditions 10 days apart) and take the 30 year climatology.
-
 import warnings
 warnings.filterwarnings("ignore")
-# import os
-# os.environ['OPENMP_NUM_THREADS']='2'
 
 import climt
 from sympl import (
-    PlotFunctionMonitor,
-    TimeDifferencingWrapper, get_constant
+    TimeDifferencingWrapper
 )
 import numpy as np
 from datetime import timedelta
 import pickle
 import time
-import matplotlib.pyplot as plt
-import mgzip
 
 
-# To save the state and spectral state of the model (pickle format)
+# function to save model state
 def save_state(state, core, filename):
     
     spec = core._gfs_cython.get_spectral_arrays()
@@ -27,11 +19,16 @@ def save_state(state, core, filename):
     with open(filename, 'wb') as f:
         pickle.dump([state,spec], f)
 
-# Set the directory to current directory
-# import os
-# os.chdir(os.getcwd())
+
+# Takes soil-scaling and optical depth as arguments ad sets up model
+# performs 3 year model spinup
+# runs the model for additional 30 years and stores model states 10 days apart
+# computes the 30 year climatology
+# does not create directory - create 'initial_summer_<soil_conf>_<rad_conf>' before run
 
 def init_and_clim(soil_conf, rad_conf):
+
+    # Setup model
 
     # Optional in our model - no component that uses irradiance
     climt.set_constants_from_dict({
@@ -39,7 +36,6 @@ def init_and_clim(soil_conf, rad_conf):
 
     model_time_step = timedelta(minutes=20)
 
-    # Create components
     convection = climt.EmanuelConvection()
     boundary=TimeDifferencingWrapper(climt.SimpleBoundaryLayer(scaling_land=soil_conf))
     radiation = climt.GrayLongwaveRadiation()
@@ -52,7 +48,6 @@ def init_and_clim(soil_conf, rad_conf):
 
     grid = climt.get_grid(nx=128, ny=62)
 
-    # Create model state
     my_state = climt.get_default_state([dycore], grid_state=grid)
 
     # Set initial/boundary conditions
@@ -63,8 +58,8 @@ def init_and_clim(soil_conf, rad_conf):
 
     # Set initial/boundary conditions
     sw_max = 150
-    sw_min = 0
 
+    # sun position at 10 degrees latitude - summer conditions
     sw_flux_profile = (sw_max*(1+1.4*(1/4*(1-3*np.sin(np.radians(latitudes-10))**2))))
     sw_flux_profile[np.where(latitudes<-80)]=sw_max*(1+1.4/4*(1-3))
 
@@ -118,14 +113,13 @@ def init_and_clim(soil_conf, rad_conf):
             state_clim[e].values[:]=state_clim[e]/count
     state_clim['area_type']=my_state['area_type']
 
-    # save spinup is needed
-    # save_state(my_state, dycore, 'initial_summer_0.5_base/spinup')
-
     with open('initial_summer_'+str(soil_conf)+'_'+str(rad_conf)+'/climatology_summer_'+str(soil_conf)+'_'+str(rad_conf), 'wb') as f:
             pickle.dump(state_clim, f)
 
     print("Time : ", (time.time() - start_time)/3600, "hrs")
 
+
+# get configuration index
 
 import sys
 key=int(sys.argv[1])
