@@ -24,7 +24,7 @@ From: python:3.6.15
 	python setup.py install
 	
 	cd /
-#Will contin the instructions to setup image
+# Will contain the instructions to setup image
 
 %runscript
 	/bin/bash
