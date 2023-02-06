@@ -2,6 +2,8 @@ import pickle
 import gzip
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.interpolate import interp1d
+
 
 import os
 os.chdir('/home/lab_abel/Heatwaves/Data/compact')
@@ -60,18 +62,19 @@ def analyse_GKTL(exp):
 
     A_max=[]
     for e in T:
-        A_max.append(np.max(running_mean(np.array(e)-298.3797386241071, 3*24*90)))
+        A_max.append(np.max(running_mean((np.array(e)-298.3797386241071)[:], 3*24*90)))
 
     a, p = zip(*sorted(zip(A_max, p)))
     
-    index=0
-    for i in range(len(a)):
-        if a[i]>0.7:
-            break
-        index+=1
+    # print(np.sum(p))
+
+    # index=0
+    # for i in range(len(a)):
+    #     if a[i]>0.01:
+    #         break
+    #     index+=1
     
-    a=a[index:];p=p[index:]
-    print(np.sum(p))
+    # a=a[index:];p=p[index:]
 
     r=[]
     for i in range(len(a)):
@@ -88,30 +91,68 @@ def analyse_GKTL(exp):
             front=i+1
         if r[i]<mean+1.0*std:
             rear= i+1
-        
-    a=a[front:rear];r=r[front:rear]
-    plt.plot(r,a, label=exp)
-    return r,a
+
+    # a=a[front:rear];r=r[front:rear]
+    
+    # r_interpol_range=np.linspace(0,1000000,10000001, endpoint=True)
+    r_interpol_range=np.power(10, np.linspace(-1,6,100000, endpoint=True))
+    f = interp1d(r, a)
+    r_interpol=r_interpol_range[np.logical_and(r_interpol_range>r[0], r_interpol_range<r[-1])]
+    a_interpol=f(r_interpol)
+
+    plt.plot(r_interpol,a_interpol, label=exp)
+    return r_interpol,a_interpol
 
 
 analyse_direct(38)
 
-# r=[];a=[]
-# r_temp, a_temp=analyse_GKTL('10_new')
-# r=r+r_temp;a=a+list(a_temp)
+r=np.power(10, np.linspace(-1,6,100000, endpoint=True))
+print(r.min(), r.max())
+c=np.zeros(len(r))
+val=np.zeros(len(r))
+val2=np.zeros(len(r))
 
-# r_temp, a_temp=analyse_GKTL('20_new')
-# r=r+r_temp;a=a+list(a_temp)
+for exp in  ['10b', '20', '20b', '30', '40', '40b', '50' ]:
+    r_temp, a_temp=analyse_GKTL(exp)
+    mask=np.logical_and(r>=r_temp.min(), r<=r_temp.max())
+    val[mask]=val[mask]+a_temp
+    val2[mask]=val2[mask]+a_temp*a_temp
+    c[mask]=c[mask]+1
 
-# r_temp, a_temp=analyse_GKTL('40_new')
-# r=r+r_temp;a=a+list(a_temp)
+a_avg=val/c
+std=np.sqrt(val2/c-(val*val)/(c*c))
+print(std.min(),std.max())
 
-# r_temp, a_temp=analyse_GKTL('50_new')
-# r=r+r_temp;a=a+list(a_temp)
+# plt.plot(r,a_avg, label='GKTL run',color='red',linewidth=1.5)
+# plt.fill_between(r,a_avg-std,a_avg+std,color="grey",alpha=0.3)
+plt.grid()
+plt.xscale('log')
+plt.xlabel('Return time (years)')
+plt.ylabel('Anomaly of 90 day avg temperature (K)')
+plt.legend()
+# plt.xlim([0,70000000])
+plt.xticks([1/10,1,10,100,1000,10000,100000,1000000,1000000])
+plt.ylim([0,3])
+plt.show()
 
-# z = np.polyfit(np.log10(r), a, 5)
-# P=np.polyval(z,np.log10(r))
-# plt.plot(r,P, label='GKTL run',color='red',linewidth=1.5)
+
+analyse_direct(38)
+
+front=0;rear=len(c)
+stop=0
+for i in range(len(c)):
+    if c[i]<3 and stop==0:
+        front=i+1
+        stop=1
+    if c[i]>3:
+        rear= i+1
+
+a_avg=a_avg[front:rear];r=r[front:rear];std=std[front:rear]
+
+z = np.polyfit(np.log10(r), a_avg, 5)
+P=np.polyval(z,np.log10(r))
+plt.plot(r,P, label='GKTL run',color='red',linewidth=1.5)
+plt.fill_between(r,P-std,P+std,color='grey',alpha=0.15)
 
 plt.grid()
 plt.xscale('log')
@@ -119,6 +160,6 @@ plt.xlabel('Return time (years)')
 plt.ylabel('Anomaly of 90 day avg temperature (K)')
 plt.legend()
 # plt.xlim([0,70000000])
-plt.xticks([1/10,1,10,100,1000,10000,100000,1000000,10000000])
+plt.xticks([1/10,1,10,100,1000,10000,100000,1000000,1000000])
 plt.ylim([0,3])
 plt.show()

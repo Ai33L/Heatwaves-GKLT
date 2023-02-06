@@ -19,11 +19,13 @@ dir=str(sys.argv[3])
 with open(dir+'/pert_flag', 'rb') as f:
     pert_flag = int(pickle.load(f)[traj_num-1])
 
+
 # get tau value
 with open(dir+'/config', 'rb') as f:
     config = pickle.load(f)
 
 tau=config[2]
+soil_conf=config[4]
 
 
 # Function to perturb spectral surface pressure array - To introduce perturbation in model
@@ -64,7 +66,7 @@ def Traj():
     model_time_step = timedelta(minutes=20)
 
     convection = climt.EmanuelConvection()
-    boundary=TimeDifferencingWrapper(climt.SimpleBoundaryLayer(scaling_land=0.5))
+    boundary=TimeDifferencingWrapper(climt.SimpleBoundaryLayer(scaling_land=soil_conf))
     radiation = climt.GrayLongwaveRadiation()
     slab_surface = climt.SlabSurface()
 

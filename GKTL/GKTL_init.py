@@ -12,10 +12,11 @@ k_val=int(sys.argv[2])
 Num_traj=int(sys.argv[3])
 dir_init=str(sys.argv[4])
 
-# initialise run parameters
+# Set run parameters
 Num_iter = 16
 tau = 8
 Ta = Num_iter*tau
+soil_conf=0.5
 
 # sample randomly from initial conditions and creates files
 initial_sample = random.sample((range(1,1095)),Num_traj)
@@ -44,7 +45,7 @@ for i in range(Num_traj):
 # creates and writes values
 
 with open(dir+'/config', 'wb') as f:
-    pickle.dump([k_val, Num_traj, tau, Ta], f)
+    pickle.dump([k_val, Num_traj, tau, Ta, soil_conf], f)
 
 with open(dir+'/R_log', 'wb') as f:
     pickle.dump([R_log], f)

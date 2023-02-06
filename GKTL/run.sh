@@ -18,6 +18,7 @@ rm -r *.sh.o*
 rm -r *.sh.e*
 rm GKTL_log.txt
 
+
 # run GKTL_init for new experiments 
 if [ $iter -eq 1 ]
 then
@@ -52,6 +53,7 @@ sleep 60
 x=`find $1 -name 'pass_init' |wc -l`
 done
 
+
 ## end of initialisation - iteration begin
 
 n=40 # number of parallel trajectories
@@ -61,6 +63,7 @@ for (( k = iter; k <= 16 ; k++ ))
 do
 
 echo $k
+
 
 # submit jobs - n jobs at a time
 c=1
@@ -115,6 +118,7 @@ do
 sleep 120
 x=`find $1 -name 'pass_traj*' |wc -l`
 done
+
 
 # run resampling and check completion
 pass=0

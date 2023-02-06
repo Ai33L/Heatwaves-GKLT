@@ -3,7 +3,8 @@
 #SBATCH --time=01:00:00
 #SBATCH --job-name=GKTL_traj
 #SBATCH --partition=standard
-#SBATCH --exclude=cn020,cn029,cn166,gpu002,cn001,cn005,cn097,gpu001,cn143,cn164,cn035
+#SBATCH --exclude=cn020,cn029,cn166,gpu002,cn001,cn005,cn097,gpu001,cn143,cn164,cn035,cn086,cn087
+
 #SBATCH -N 1
 ##SBATCH --array=1-40
 #SBATCH --qos=array-job

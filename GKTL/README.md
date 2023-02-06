@@ -2,12 +2,14 @@
 
 #### Algorithm run
 
-The algorithm is run with the script **run.sh**, which automates the entire algorithm procedure. The experiments to be run are defined at the end of the file.
+The algorithm is run with the script **run.sh**, which automates the entire algorithm procedure.
 
 ```
  nohup ./run.sh &
 ```
-  
+
+Algorithm parameters are set in the *GKTL_init.py* script. Experiment parameters are set at the end of the *run.sh* script.
+
 #### Files and setup
 * GKTL_init.py and submit_init.sh
 * GKTL_traj.py and submit_traj_ser.sh
