@@ -63,8 +63,6 @@ def analyse_GKTL(exp):
         A_max.append(np.max(running_mean((np.array(e)-298.3797386241071)[:], 3*24*90)))
 
     a, p = zip(*sorted(zip(A_max, p)))
-    
-    print(np.sum(p))
 
     # index=0
     # for i in range(len(a)):
@@ -82,15 +80,17 @@ def analyse_GKTL(exp):
 
     # plt.plot(r,a, label='GKTL k=10', color='red', linewidth='0.8')
     
-    mean=np.mean(r); std=np.std(r)
-    front=0;rear=len(r)
-    for i in range(len(r)):
-        if r[i]<mean-1.0*std:
+    mean=np.mean(a); std=np.std(a)
+    front=0;rear=len(a)
+    for i in range(len(a)):
+        if a[i]<mean-2.0*std:
             front=i+1
-        if r[i]<mean+1.0*std:
+        if a[i]<mean+2.0*std:
             rear= i+1
-        
-    # a=a[front:rear];r=r[front:rear]
+    
+    # print(sum(p[front:rear]))
+    a=a[front:rear];r=r[front:rear]
+    # print(np.mean(a))
     plt.plot(r,a, label=exp)
     return r,a
 
@@ -116,11 +116,8 @@ r=r+r_temp;a=a+list(a_temp)
 r_temp, a_temp=analyse_GKTL('40b')
 r=r+r_temp;a=a+list(a_temp)
 
-# r_temp, a_temp=analyse_GKTL('45')
-# r=r+r_temp;a=a+list(a_temp)
-
-# r_temp, a_temp=analyse_GKTL('50')
-# r=r+r_temp;a=a+list(a_temp)
+r_temp, a_temp=analyse_GKTL('50')
+r=r+r_temp;a=a+list(a_temp)
 
 
 plt.grid()
@@ -133,19 +130,19 @@ plt.xticks([1/10,1,10,100,1000,10000,100000,1000000,1000000])
 plt.ylim([0,3])
 plt.show()
 
-analyse_direct(38)
+# analyse_direct(38)
 
-r, a = zip(*sorted(zip(r, a)))
-z = np.polyfit(np.log10(r), a, 5)
-P=np.polyval(z,np.log10(r))
-plt.plot(r,P, label='GKTL run',color='red',linewidth=1.5)
+# r, a = zip(*sorted(zip(r, a)))
+# z = np.polyfit(np.log10(r), a, 5)
+# P=np.polyval(z,np.log10(r))
+# plt.plot(r,P, label='GKTL run',color='red',linewidth=1.5)
 
-plt.grid()
-plt.xscale('log')
-plt.xlabel('Return time (years)')
-plt.ylabel('Anomaly of 90 day avg temperature (K)')
-plt.legend()
-# plt.xlim([0,70000000])
-plt.xticks([1/10,1,10,100,1000,10000,100000,1000000,1000000])
-plt.ylim([0,3])
-plt.show()
+# plt.grid()
+# plt.xscale('log')
+# plt.xlabel('Return time (years)')
+# plt.ylabel('Anomaly of 90 day avg temperature (K)')
+# plt.legend()
+# # plt.xlim([0,70000000])
+# plt.xticks([1/10,1,10,100,1000,10000,100000,1000000,1000000])
+# plt.ylim([0,3])
+# plt.show()
