@@ -80,16 +80,16 @@ def analyse_GKTL(exp):
 
     # plt.plot(r,a, label='GKTL k=10', color='red', linewidth='0.8')
     
-    mean=np.mean(a); std=np.std(a)
-    front=0;rear=len(a)
-    for i in range(len(a)):
-        if a[i]<mean-2.0*std:
-            front=i+1
-        if a[i]<mean+2.0*std:
-            rear= i+1
+    # mean=np.mean(a); std=np.std(a)
+    # front=0;rear=len(a)
+    # for i in range(len(a)):
+    #     if a[i]<mean-2.0*std:
+    #         front=i+1
+    #     if a[i]<mean+2.0*std:
+    #         rear= i+1
     
     # print(sum(p[front:rear]))
-    a=a[front:rear];r=r[front:rear]
+    # a=a[front:rear];r=r[front:rear]
     # print(np.mean(a))
     plt.plot(r,a, label=exp)
     return r,a

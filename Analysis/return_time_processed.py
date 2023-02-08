@@ -84,21 +84,21 @@ def analyse_GKTL(exp):
 
     # plt.plot(r,a, label='GKTL k=10', color='red', linewidth='0.8')
     
-    mean=np.mean(a); std=np.std(a)
-    front=0;rear=len(a)
-    for i in range(len(a)):
-        if a[i]<mean-2.0*std:
-            front=i+1
-        if a[i]<mean+2.0*std:
-            rear= i+1
-
-    a=a[front:rear];r=r[front:rear]
-    
     # r_interpol_range=np.linspace(0,1000000,10000001, endpoint=True)
-    r_interpol_range=np.power(10, np.linspace(-0.5,6,100000, endpoint=True))
+    r_interpol_range=np.power(10, np.linspace(-1,8,1000000, endpoint=True))
     f = interp1d(r, a)
     r_interpol=r_interpol_range[np.logical_and(r_interpol_range>np.min(r), r_interpol_range<np.max(r))]
     a_interpol=f(r_interpol)
+    
+    mean=np.mean(a_interpol); std=np.std(a_interpol)
+    front=0;rear=len(a_interpol)
+    for i in range(len(a_interpol)):
+        if a_interpol[i]<mean-1.0*std:
+            front=i+1
+        if a_interpol[i]<mean+1.0*std:
+            rear= i+1
+
+    a_interpol=a_interpol[front:rear];r_interpol=r_interpol[front:rear]
 
     # plt.plot(r_interpol,a_interpol, label=exp)
     return r_interpol,a_interpol
@@ -106,7 +106,7 @@ def analyse_GKTL(exp):
 
 analyse_direct(38)
 
-r=np.power(10, np.linspace(-0.5,6,100000, endpoint=True))
+r=np.power(10, np.linspace(-1,8,1000000, endpoint=True))
 print(r.min(), r.max())
 c=np.zeros(len(r))
 val=np.zeros(len(r))
@@ -138,19 +138,20 @@ plt.show()
 
 analyse_direct(38)
 
-# front=0;rear=len(c)
-# stop=0
-# for i in range(len(c)):
-#     if c[i]>=1 and stop==0:
-#         front=i+1
-#         stop=1
-#     if c[i]>=3:
-#         rear= i+1
+front=0;rear=len(c)
+stop=0
+for i in range(len(c)):
+    if c[i]>=1 and stop==0:
+        front=i+1
+        stop=1
+    if c[i]>=3:
+        rear= i+1
 
-# a_avg=a_avg[front:rear];r=r[front:rear];std=std[front:rear]
+a_avg=a_avg[front:rear];r=r[front:rear];std=std[front:rear]
 
 z = np.polyfit(np.log10(r), a_avg, 5)
 P=np.polyval(z,np.log10(r))
+print(z)
 plt.plot(r,P, label='GKTL run',color='red',linewidth=1.5)
 plt.fill_between(r,P-std,P+std,color='grey',alpha=0.2)
 
