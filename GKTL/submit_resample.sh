@@ -3,7 +3,7 @@
 #SBATCH --time=01:00:00
 #SBATCH --job-name=GKTL_resample
 #SBATCH --partition=standard
-#SBATCH --exclude=cn020,cn029,cn166,gpu002,cn001,cn005,cn097,gpu001,cn143,cn164,cn035
+#SBATCH --exclude=cn020,cn029,cn166,gpu002,cn001,cn005,cn097,gpu001,cn143,cn164,cn035,cn086,cn087,cn088,cn081,cn034,gpu027,cn080,cn028,gpu024,cn168,cn002,cn085,cn116
 #SBATCH -N 1
 
 pass=0

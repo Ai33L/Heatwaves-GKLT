@@ -1,19 +1,23 @@
+# runs the model for short durations (50 years) - run many times for a total duration of
+# 1000 years
+
 import warnings
 warnings.filterwarnings("ignore")
+# import os
+# os.environ['OPENMP_NUM_THREADS']='2'
 
 import climt
 from sympl import (
-    TimeDifferencingWrapper
+    PlotFunctionMonitor, NetCDFMonitor,
+    TimeDifferencingWrapper, get_constant
 )
 import numpy as np
 from datetime import timedelta
 import pickle
+import time
+import matplotlib.pyplot as plt
 import gzip
 
-# Script to initialise model from a randomised initial condition and 
-# simulate for 25 years  
-
-# get passed argument
 import sys
 key=int(sys.argv[1])
 
@@ -23,12 +27,12 @@ def perturb(X):
     N=np.random.uniform(-1,1,np.shape(X[4]))*np.sqrt(2)*10**-4
     X[4][:]=(X[4]+N)[:]
 
-# load state from memory - perturb if pert_flag is true 
+#load state from memory
 def load_state(state, core, filename):
         
     with open(filename, 'rb') as f:
         fields, spec = pickle.load(f)
-    
+        
     if pert_flag:
         core.set_flag(False)
         perturb(spec)
@@ -44,6 +48,7 @@ climt.set_constants_from_dict({
 
 model_time_step = timedelta(minutes=20)
 
+# Create components
 convection = climt.EmanuelConvection()
 boundary=TimeDifferencingWrapper(climt.SimpleBoundaryLayer(scaling_land=0.5))
 radiation = climt.GrayLongwaveRadiation()
@@ -56,12 +61,13 @@ dycore = climt.GFSDynamicalCore(
 
 grid = climt.get_grid(nx=128, ny=62)
 
+# Create model state
 my_state = climt.get_default_state([dycore], grid_state=grid)
 dycore(my_state, model_time_step)
 
 load_state(my_state, dycore, 'initial_summer_0.5_6/state1000')
 
-# spinup from perturbed state
+# spinup from perturbed state - to be safe from effects of perturbation
 for i in range(26280):#26280 one year
 
     if i==1:
@@ -71,12 +77,9 @@ for i in range(26280):#26280 one year
     my_state.update(diag)
     my_state['time'] += model_time_step
 
-
 # setup fields to save
-
 # Temp field
 Air_temp_lowest=[]
-
 # 2D fields
 Surf_temp=[]
 Surf_press=[]
@@ -84,7 +87,6 @@ Down_long=[]
 Up_long=[]
 Latent_flux=[]
 Sensible_flux=[]
-
 # 3D fields
 Air_temp=[]
 East_wind=[]
